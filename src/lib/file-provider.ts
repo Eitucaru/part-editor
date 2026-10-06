@@ -1,5 +1,6 @@
 import { resolveCandidates } from './path-resolver'
 import type { LibraryFs } from './library-fs'
+import { ServerLdrawProvider } from './server-library'
 
 /** Abstraction over "where do referenced LDraw files come from". */
 export interface LDrawFileProvider {
@@ -138,12 +139,33 @@ export class MemoryLdrawProvider implements LDrawFileProvider {
  * -------------------------------------------------------------------------- */
 
 let active: LDrawFileProvider | null = null
-let serverFallback: HttpLdrawProvider | null = null
+let serverFallback: HttpLdrawProvider | ServerLdrawProvider | null = null
+
+/**
+ * The library API this build reads from when no folder is attached (`VITE_LDRAW_API`, e.g.
+ * `https://minibrickcraze.com/api/v1`), or null to use the dev server's `/ldraw` mount.
+ */
+export function libraryApiUrl(): string | null {
+  const configured = import.meta.env.VITE_LDRAW_API
+  return typeof configured === 'string' && configured.trim() ? configured.trim() : null
+}
+
+function defaultSource(): HttpLdrawProvider | ServerLdrawProvider {
+  if (!serverFallback) {
+    const api = libraryApiUrl()
+    serverFallback = api ? new ServerLdrawProvider(api) : new HttpLdrawProvider()
+  }
+  return serverFallback
+}
 
 function currentProvider(): LDrawFileProvider {
-  if (active) return active
-  if (!serverFallback) serverFallback = new HttpLdrawProvider()
-  return serverFallback
+  return active ?? defaultSource()
+}
+
+/** The site library, when this build reads from one. */
+export function serverLibrary(): ServerLdrawProvider | null {
+  const source = defaultSource()
+  return source instanceof ServerLdrawProvider ? source : null
 }
 
 /** Shared provider used by the scene and the store. */
@@ -152,8 +174,8 @@ export const defaultLdrawProvider: LDrawFileProvider = {
 }
 
 /**
- * Swap the active library. Pass `null` to go back to the HTTP provider (the
- * Vite dev/preview server).
+ * Swap the active library. Pass `null` to go back to the default source (the
+ * site library API, or the Vite dev/preview server).
  */
 export function setLdrawProvider(provider: LDrawFileProvider | null): void {
   active = provider

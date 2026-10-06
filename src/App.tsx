@@ -12,6 +12,7 @@ import { formatLDraw, minifyLDraw } from './core'
 import { writeConnBinary } from './lib/conn'
 import { BUILT_WITH_LABEL } from './lib/credits'
 import { DEFAULT_WORKSPACE } from './lib/sample'
+import { serverLibrary } from './lib/file-provider'
 
 function download(filename: string, text: string): void {
   const blob = new Blob([text], { type: 'text/plain' })
@@ -48,6 +49,24 @@ export default function App() {
   // the library dialog offers a reconnect button when a click is needed.
   useEffect(() => {
     void useEditorStore.getState().restoreLibrary()
+  }, [])
+
+  // `?part=<slug>` opens a published part from the online library, as the
+  // site draws it (the "View in Part Editor" link on a part page).
+  useEffect(() => {
+    const slug = new URLSearchParams(window.location.search).get('part')
+    const library = serverLibrary()
+    if (!slug || !library) return
+    void library.loadPart(slug).then((bundle) => {
+      const store = useEditorStore.getState()
+      const text = bundle?.files[bundle.root]
+      if (!bundle || text === undefined) {
+        store.setLibraryError(`The part "${slug}" could not be opened from the online library.`)
+        store.setLibraryDialogOpen(true)
+        return
+      }
+      store.setCode(text, bundle.root, `Open part ${bundle.part.slug}`)
+    })
   }, [])
 
   useEffect(() => {

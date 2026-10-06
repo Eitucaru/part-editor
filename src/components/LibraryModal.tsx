@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useEditorStore } from '../store/editorStore'
 import { folderFromDrop, pickDirectoryHandle, pickFolderFileList, supportsDirectoryPicker } from '../lib/library-fs'
+import { libraryApiUrl } from '../lib/file-provider'
 
 interface LibraryModalProps {
   isOpen: boolean
@@ -16,6 +17,8 @@ function errorMessage(error: unknown, fallback: string): string {
 
 /** The dev server serves the library itself; a packaged build cannot. */
 const devServer = import.meta.env.DEV
+/** A build configured with an online library reads from it when no folder is attached. */
+const libraryApi = libraryApiUrl()
 
 const muted: React.CSSProperties = {
   color: 'var(--color-text-muted, #9aa0a6)',
@@ -139,7 +142,9 @@ export function LibraryModal({ isOpen, onClose }: LibraryModalProps) {
       >
         <h3 style={{ marginTop: 0, marginBottom: 8 }}>LDraw Library</h3>
         <p style={{ ...muted, marginTop: 0 }}>
-          Parts and primitives are read from a folder on this computer. Nothing is uploaded.
+          {libraryApi
+            ? 'Parts and primitives come from the online library, or from a folder on this computer. Nothing is uploaded.'
+            : 'Parts and primitives are read from a folder on this computer. Nothing is uploaded.'}
         </p>
 
         <div
@@ -162,6 +167,16 @@ export function LibraryModal({ isOpen, onClose }: LibraryModalProps) {
                     : 'No parts or p folder found here. Pick the LDraw root folder that contains them.'}
                 </div>
               )}
+            </>
+          ) : libraryApi ? (
+            <>
+              <div style={{ fontSize: 13 }}>
+                Using the online library at <strong>{new URL(libraryApi).host}</strong>
+              </div>
+              <div style={muted}>
+                Parts are fetched as they are needed and kept by your browser. Attach a folder to use your own copy
+                instead.
+              </div>
             </>
           ) : devServer ? (
             <>

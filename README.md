@@ -34,6 +34,11 @@ npm run build     # type-check + production build
 The editor draws parts from an [LDraw](https://www.ldraw.org/) parts library.
 The library is not included in this repository.
 
+- **Online library:** a build made with `VITE_LDRAW_API` (for example
+  `VITE_LDRAW_API=https://minibrickcraze.com/api/v1 npm run build:pages`) reads
+  parts from that site's public LDraw routes. A part and everything it
+  references arrive in one request and are cached by the browser. Open a
+  published part directly with `?part=<slug>`.
 - **Dev server:** Vite reads the library from disk (`LDRAW_LIBRARY_PATH`) and
   serves it on `/ldraw`.
 - **Static build:** **File → LDraw Library…** reads a folder you pick. **Select

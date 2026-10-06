@@ -5,6 +5,7 @@ import { ViewportToolbar } from './ViewportToolbar'
 import { Toolbar } from './Toolbar'
 import { ContextMenu, useContextMenu } from './ContextMenu'
 import { SchematicPane } from './SchematicPane'
+import { libraryApiUrl } from '../lib/file-provider'
 
 /** The interactive 3D viewport, with tools and selection bound to the store. */
 export function ViewportPane() {
@@ -28,10 +29,11 @@ export function ViewportPane() {
   const setLibraryDialogOpen = useEditorStore((state) => state.setLibraryDialogOpen)
   const pendingFrameRef = useRef(false)
 
-  // A packaged build has no `/ldraw` endpoint, so the viewport stays empty
-  // until a folder is attached. Say so instead of showing nothing (the dev
-  // server, which does serve the library, never shows this).
-  const needsLibrary = !import.meta.env.DEV && libraryMode === 'server'
+  // A packaged build without an online library has no `/ldraw` endpoint, so
+  // the viewport stays empty until a folder is attached. Say so instead of
+  // showing nothing (the dev server, which does serve the library, never
+  // shows this).
+  const needsLibrary = !import.meta.env.DEV && libraryMode === 'server' && !libraryApiUrl()
 
   useEffect(() => {
     if (!containerRef.current) return
