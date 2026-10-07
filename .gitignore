@@ -5,6 +5,7 @@ node_modules
 dist
 dist-ssr
 dist-pages
+dist-site
 
 # Logs
 logs
@@ -28,3 +29,5 @@ pnpm-debug.log*
 # Local environment
 .env
 .env.*
+# Build settings of the site copy, not secrets.
+!.env.site

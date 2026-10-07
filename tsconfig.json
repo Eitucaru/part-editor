@@ -16,7 +16,10 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    /* Site features; vite.config.ts points this at enabled.ts in the site build. */
+    "paths": { "@site": ["./src/site/disabled.ts"] }
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

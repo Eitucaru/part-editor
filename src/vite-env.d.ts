@@ -6,6 +6,8 @@
 interface ImportMetaEnv {
   /** Library API root, e.g. `https://minibrickcraze.com/api/v1`; unset uses `/ldraw`. */
   readonly VITE_LDRAW_API?: string
+  /** `minibrickcraze` builds the site copy: part drafts, saving and a bundled Monaco. */
+  readonly VITE_SITE?: string
 }
 
 interface ImportMeta {

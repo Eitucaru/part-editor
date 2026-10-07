@@ -41,7 +41,7 @@ function staticServer(name: string, mount: string, root: string): Plugin {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   // Serving the app from a sub-path (https://user.github.io/<repo>/) needs a
   // matching base so the emitted /assets URLs resolve. Build with
   // `VITE_BASE=/<repo>/ npm run build` instead of editing this file. Library
@@ -51,4 +51,8 @@ export default defineConfig({
     react(),
     staticServer('serve-ldraw-library', '/ldraw', LDRAW_ROOT),
   ],
-})
+  // Site features exist only in the MiniBrickCraze copy (`--mode site`, see src/site/enabled.ts).
+  resolve: {
+    alias: { '@site': path.resolve(__dirname, mode === 'site' ? 'src/site/enabled.ts' : 'src/site/disabled.ts') },
+  },
+}))

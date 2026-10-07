@@ -13,6 +13,8 @@ import { writeConnBinary } from './lib/conn'
 import { BUILT_WITH_LABEL } from './lib/credits'
 import { DEFAULT_WORKSPACE } from './lib/sample'
 import { serverLibrary } from './lib/file-provider'
+// The site copy's draft bar; null in the community build (see site/enabled.ts).
+import { SiteBar } from '@site'
 
 function download(filename: string, text: string): void {
   const blob = new Blob([text], { type: 'text/plain' })
@@ -115,6 +117,7 @@ export default function App() {
           onMinify={() => formatDocument('minified')}
           onSettings={() => setSettingsOpen(true)}
         />
+        {SiteBar && <SiteBar />}
         <button
           className="built-with-button"
           onClick={() => setCreditsOpen(true)}
