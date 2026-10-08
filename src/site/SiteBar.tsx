@@ -3,6 +3,9 @@ import './site.css'
 import { useEditorStore } from '../store/editorStore'
 import { SiteApi, SiteError, type SitePart } from './site-api'
 
+/** The part's page on the site: the address the site gave, or the parts browser for an older server. */
+const partPage = (part: SitePart) => part.href ?? '/parts'
+
 /** One client for the page: a new one per render would restart loading the draft on every render. */
 const siteApi = new SiteApi()
 
@@ -128,7 +131,7 @@ export function SiteBar({ api = siteApi }: { api?: SiteApi }) {
     try {
       await api.discard(partId)
       saved.current = null
-      window.location.href = part ? '/parts/' + encodeURIComponent(part.slug) : '/parts'
+      window.location.href = part ? partPage(part) : '/parts'
     } catch (error) {
       setStatus({ kind: 'failed', message: messageOf(error), stale: false })
     }
@@ -146,7 +149,7 @@ export function SiteBar({ api = siteApi }: { api?: SiteApi }) {
 
   return (
     <div className="site-bar">
-      {part && <a className="site-bar-part" href={'/parts/' + encodeURIComponent(part.slug)} title="Back to the part page">← {part.name}</a>}
+      {part && <a className="site-bar-part" href={partPage(part)} title="Back to the part page">← {part.name}</a>}
       <span className={'site-bar-state' + (status.kind === 'failed' ? ' failed' : '')} role="status">{state}</span>
       {status.kind === 'failed' && status.stale && <button type="button" onClick={() => window.location.reload()}>Reload draft</button>}
       {part && status.kind !== 'completed' && <>
@@ -174,7 +177,7 @@ export function SiteBar({ api = siteApi }: { api?: SiteApi }) {
           </div>
         </div>
       )}
-      {status.kind === 'completed' && part && <a className="site-bar-done" href={'/parts/' + encodeURIComponent(part.slug)}>View the part page</a>}
+      {status.kind === 'completed' && part && <a className="site-bar-done" href={partPage(part)}>View the part page</a>}
     </div>
   )
 }

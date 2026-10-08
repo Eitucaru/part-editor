@@ -7,6 +7,8 @@ export interface SitePart {
   id: string
   slug: string
   name: string
+  /** The part's page on the site; older servers did not send it. */
+  href?: string
   /** The model file the part draws from now, if any. */
   modelFile: string | null
   modelStatus: 'notStarted' | 'inProgress' | 'modelled'
